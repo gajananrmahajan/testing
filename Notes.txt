@@ -1,0 +1,55 @@
+Testng dependency
+surefireplugin dependcy in build
+@Test annotation
+Priority
+enabled
+dependsOnMethods
+dependsOnGroups
+Timeout in ms
+Data provider
+@BeforeMethod
+@BeforeClass
+Parameters
+Soft assert
+Hard Assert
+
+Failed tests in testngfailed.xml
+
+mvn test -Dsurefire.suiteXmlFiles=mytestng.xml
+this.getClass().getName()  - fully qualified class name
+new Demo1Test(){}.getClass().getEnclosingMethod().getName() - method name
+
+Alllure - 
+alluretestng dependency add
+@Description
+@Step
+@Attachment
+@Link - doubt
+@Issue
+@Tms-link
+@Severity
+@Story
+@Epic
+
+allure.properties
+allure.results.directory=target/allure-results
+allure.link.issue.pattern=https://example.org/issue/{}
+allure.link.tms.pattern=https://example.org/tms/{}
+
+For report generation -
+
+https://github.com/allure-framework/allure1/wiki/TestNG
+
+add maven allure report plugin
+
+<plugin>
+        <groupId>io.qameta.allure</groupId>
+        <artifactId>allure-maven</artifactId>
+        <version>2.8</version>
+    </plugin>
+	
+mvn allure:report get reoprt
+
+Report: target/site/allure-maven/index.html
+
+https://issart.com/blog/practical-guide-for-making-tests-execution-result-reports-more-comprehensible/
