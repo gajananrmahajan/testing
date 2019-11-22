@@ -48,7 +48,7 @@ pipeline {
             body: 'Provided parameters for your build is :' + parametersUrl + '\n\nFailure causes details are as follows: \n\n' + buildFails,
             //body: '<b>Provided parameters for your build is </b>' + parametersUrl + '<br/><br/><b>Failure causes details are as follows: </b><br/><br/>' + buildFails,
             subject: subject,
-            to: "gajanan.mahajan@1eq.com"
+            to: "gajanan.mahajan@1.com"
             }
     }
   }
