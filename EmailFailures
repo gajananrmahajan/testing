@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Ok') {
+            steps {
+                echo "Ok"
+                echo "svn: E215004: No more credentials or we tried too many times."
+                echo "Authentication failed"
+                echo "java.io.IOException: Batch scripts can only be run on Windows nodes."
+                bat '''cdddddd'''
+            }
+        }
+    }
+    post {  
+        failure {
+            script {   
+               def parametersUrl = "${env.BUILD_URL}" + "parameters"
+               def subject = "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}"
+              
+               def buildFailure = tm('${BUILD_FAILURE_ANALYZER}')
+                
+               if(buildFailure.isEmpty())
+                   buildFailure = "Even though build has failed, buid failure cause(s) did not match with defined failure causes. We'll analyze build failure and add failure cause(s). For now please go through console output for the failure."
+                
+                println buildFailure
+                println buildFailure.size()
+                println buildFailure.getClass()
+                def failures = buildFailure.split("\n\\*")
+                println failures.size()
+                
+                def buildFails
+                
+               /* for(int i=0; i<failures.size(); i++) {
+                    /*println "***********"
+                    println failures[i]
+                    
+                    buildFails = String.join("<br/>", failures[i])
+                }*/
+                
+                //buildFails = String.join("<br/>", failures)
+                buildFails = String.join("\n\n", failures)
+                
+                println "Build failures are"
+                println buildFails
+
+        emailext attachLog: false,
+            body: 'Provided parameters for your build is :' + parametersUrl + '\n\nFailure causes details are as follows: \n\n' + buildFails,
+            //body: '<b>Provided parameters for your build is </b>' + parametersUrl + '<br/><br/><b>Failure causes details are as follows: </b><br/><br/>' + buildFails,
+            subject: subject,
+            to: "gajanan.mahajan@1eq.com"
+            }
+    }
+  }
+}
