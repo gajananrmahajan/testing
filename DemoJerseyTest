@@ -1,0 +1,87 @@
+package jerseyclienttest;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.HttpURLConnection;
+
+public class DemoJerseyTest {
+
+    @Test
+    public void getEmployee(){
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target("http://dummy.restapiexample.com/api/v1")
+                .path("/employee/2121");
+        Response response = webTarget.request().get();
+        System.out.println("Status code is " + response.getStatus());
+        String outputJsonString = response.readEntity(String.class);
+
+        JSONObject jsonObject = new JSONObject(outputJsonString);
+        System.out.println("Employee Id is " + jsonObject.getString("id"));
+        System.out.println("Output json is " + jsonObject);
+        response.getHeaders().keySet().forEach(key -> System.out.println(key));
+    }
+
+    @Test
+    public void getEmployees(){
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target("http://dummy.restapiexample.com/api/v1")
+                .path("/employees");
+        Response response = webTarget.request().get();
+        System.out.println("Status code is " + response.getStatus());
+        String outputJsonString = response.readEntity(String.class);
+
+        System.out.println("Json as string " + outputJsonString);
+        JSONArray jsonArray = new JSONArray(outputJsonString);
+        System.out.println("JSOn is " + jsonArray);
+        System.out.println("Total employees are " + jsonArray.length());
+
+        System.out.println("Employee id is " + jsonArray.getJSONObject(0).getString("id"));
+    }
+
+
+    @Test
+    public void createEmployee() {
+       /* JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "Employee-" + RandomStringUtils.randomAlphabetic(5));
+        jsonObject.put("salary", "123");
+        jsonObject.put("age", "23");*/
+
+        String payload = "{\"name\": \"Employee-" + RandomStringUtils.randomAlphabetic(5) + "\", \"salary\": \"123\", \"age\": \"23\" }";
+
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target("http://dummy.restapiexample.com/api/v1")
+                .path("/create");
+        Response response = webTarget.request(/*MediaType.APPLICATION_JSON_TYPE*/).post(Entity.json(payload));
+                //.post(Entity.entity(payload, MediaType.APPLICATION_JSON));
+        Assert.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+        JSONObject jsonObject = new JSONObject(response.readEntity(String.class));
+        String employeeId = jsonObject.getString("id");
+        System.out.println("Employee id is " + employeeId);
+        jsonObject.put("salary", "1234");
+
+        WebTarget updatedEebTarget = client.target("http://dummy.restapiexample.com/api/v1")
+                .path("/update/" + employeeId);
+        Response response1 = updatedEebTarget.request(MediaType.APPLICATION_JSON_TYPE).put(Entity.json(jsonObject.toString()));
+        System.out.println(response1.readEntity(String.class));
+
+    }
+
+    @Test
+    public void deleteEmployee() {
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target("http://dummy.restapiexample.com/api/v1")
+                .path("/delete/1266");
+        Response response = webTarget.request().delete();
+        System.out.println("Status code is " + response.getStatus());
+    }
+}
