@@ -1,0 +1,113 @@
+package restassuredtest;
+
+import io.qameta.allure.Issue;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.net.HttpURLConnection;
+import java.util.List;
+
+import static io.restassured.RestAssured.*;
+import static io.restassured.matcher.RestAssuredMatchers.*;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class DemoTest {
+
+    @BeforeClass
+    public void setUp(){
+        baseURI = "http://dummy.restapiexample.com";
+        basePath = "/api/v1";
+    }
+    @Test/*(enabled =  false)*/
+    public void getAllEmployeesTest(){
+        Response response = given()
+            //.baseUri("http://dummy.restapiexample.com/api/v1")
+        .when()
+            .get("employees");
+        //List<JsonOb>response.jsonPath().get();
+        System.out.println("Output is " + response.jsonPath().get());
+        System.out.println("Output is " + response.jsonPath().getList("").get(0));
+        //response.jsonPath().getList("").get(0)
+       /* response.then()
+                .body("$[0].id", equalTo("874"));*/
+        /*.then()
+            .statusCode(HttpURLConnection.HTTP_OK)
+            .body("id[0 ]", equalTo("874"));*/
+        System.out.println("Ids size is " + response.jsonPath().getList("id").size());
+        System.out.println("First id is " + response.jsonPath().getList("id").get(0));
+        //assertThat(response.jsonPath().getList("id")., equalTo("874"));
+
+    }
+
+    @Test
+    public void test(){
+        System.out.println("Tests");
+    }
+    @Test
+    @Issue("BUG-123")
+    public void getEmployeeTest() {
+        Response response = get("/employee/1233");
+        response.then()
+                .assertThat().statusCode(HttpURLConnection.HTTP_OK)
+                .assertThat().contentType(ContentType.HTML)
+                .assertThat().header("content-encoding", "gzip");
+        assertThat(response.jsonPath().getString("id"), is("1233"));
+        assertThat((response.jsonPath().getString("employee_age")), equalTo("29"));
+    }
+
+    @Test
+    public void createEmployee(){
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "Employee-" + RandomStringUtils.randomAlphabetic(5));
+        jsonObject.put("salary", "123");
+        jsonObject.put("age", "23");
+
+        Response response = given().log().ifValidationFails()//.baseUri("http://dummy.restapiexample.com/api/v1/create")
+                .body(jsonObject.toString())
+                .when()
+                .post("/create");
+                response.then().assertThat().statusCode(HttpURLConnection.HTTP_OK);
+                String employeeId = response.jsonPath().getString("id");
+        System.out.println("Employee Id is " + employeeId);
+        get("http://dummy.restapiexample.com/api/v1/employee/" + employeeId)
+                .then().assertThat().statusCode(HttpURLConnection.HTTP_OK);
+        jsonObject.put("salary", "1234");
+        ValidatableResponse validatableResponse =
+                given().log().all().
+                        body(jsonObject.toString())
+                        .put("http://dummy.restapiexample.com/api/v1/update/" + employeeId)
+                .then()/*.log().all()*/.assertThat().statusCode(HttpURLConnection.HTTP_OK);
+        System.out.println("Updated salary is " + validatableResponse.extract().jsonPath().getString("salary"));
+    }
+
+    @Test
+    @Issue("BUG-123")
+    public void deleteEmployee(){
+        String payload = "{\"name\": \"Employee-" + RandomStringUtils.randomAlphabetic(5) + "\", \"salary\": \"123\", \"age\": \"23\" }";
+
+        Response response = given().baseUri("http://dummy.restapiexample.com/api/v1/create")
+                .body(payload)
+                .when()
+                .post();
+        response.then().assertThat().statusCode(HttpURLConnection.HTTP_OK);
+        String employeeId = response.jsonPath().getString("id");
+        System.out.println("Employee Id is " + employeeId);
+        delete("http://dummy.restapiexample.com/api/v1/delete/" + employeeId)
+                .then().assertThat().statusCode(HttpURLConnection.HTTP_OK);
+               List<String> employeeIds = get("http://dummy.restapiexample.com/api/v1/employees").
+                       then().extract().jsonPath().getList("id");
+               assertThat(employeeIds, not(hasItem(employeeId)));
+    }
+
+}
