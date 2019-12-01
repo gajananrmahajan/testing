@@ -1,0 +1,61 @@
+package org.demo.selenium;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
+
+import java.util.function.Predicate;
+
+public class JavaScriptExecutionTest {
+
+    @Test
+    public void javaScriptTest(){
+        System.setProperty("webdriver.chrome.driver", ".//src//test//resources//chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://stackoverflow.com/questions/10720325/selenium-webdriver-wait-for-complex-page-with-javascript-to-load");
+
+        WebElement myelement = driver.findElement(By.linkText("Progress Listeners"));
+        JavascriptExecutor jse2 = (JavascriptExecutor)driver;
+        jse2.executeScript("arguments[0].scrollIntoView()", myelement);
+        myelement.click();
+
+        driver.navigate().back();
+        //driver.findElement(By.linkText("Progress Listeners")).click();
+        long startTime = System.currentTimeMillis();
+        new WebDriverWait(driver, 2).ignoring(ClassCastException.class)
+                .until( driver1 -> {
+                    boolean finalResult = (boolean)((JavascriptExecutor)driver1).executeScript("return document.readyState== \"complete\" && jQuery.active === 0");
+                    System.out.println("Result is " + finalResult);
+                    return finalResult;
+                });
+        WebElement myelement3 = driver.findElement(By.linkText("Progress Listeners"));
+        JavascriptExecutor jse3 = (JavascriptExecutor)driver;
+        jse3.executeScript("arguments[0].scrollIntoView()", myelement3);
+        myelement3.click();
+        /*.until( new Predicate<WebDriver>() {
+                        public boolean apply(WebDriver driver) {
+                            return ((JavascriptExecutor)driver).executeScript("return document.readyState").equals("complete");
+                        }
+                    }
+        );*/
+
+        /*.until( new Predicate<WebDriver>() {
+                    public boolean apply(WebDriver driver) {
+                        return ((JavascriptExecutor)driver).executeScript("return document.readyState").equals("complete");
+                    }
+                }
+        )*/
+                //.until(ExpectedConditions.jsReturnsValue("document.readyState==\"complete\" && jQuery.active === 0"));
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("Total time taken is " + (endTime - startTime));
+        driver.quit();
+
+    }
+}
