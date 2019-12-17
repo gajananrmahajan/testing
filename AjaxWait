@@ -1,4 +1,7 @@
-  WebElement element = new WebDriverWait(driver, 30)
+ https://elementalselenium.com/tips/72-headless-chrome
+ https://elementalselenium.com/tips/64-limit-bandwidth
+ 
+ WebElement element = new WebDriverWait(driver, 30)
                 .ignoring(NoSuchElementException.class)
                 .until(ExpectedConditions.elementToBeClickable(By.id("ribbon-connection-accessibleconnections")));
 
