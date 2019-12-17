@@ -1,0 +1,18 @@
+  WebElement element = new WebDriverWait(driver, 30)
+                .ignoring(NoSuchElementException.class)
+                .until(ExpectedConditions.elementToBeClickable(By.id("ribbon-connection-accessibleconnections")));
+
+       /* WebElement element = new WebDriverWait(driver, 30)
+                .ignoring(NoSuchElementException.class)
+                .until(ExpectedConditions.elementToBeClickable(By.id("ribbon-create-options")));*/
+
+        //ribbon-create-options
+
+        JavascriptExecutor  js = (JavascriptExecutor) driver;
+        System.out.println("Width is " + js.executeScript("return arguments[0].offsetWidth;",new Object[] {element}).toString());
+        System.out.println("Height is " + js.executeScript("return arguments[0].offsetHeight;",new Object[] {element}).toString());
+        System.out.println("Document ready? " + js.executeScript("return document.readyState === \"complete\""));
+        System.out.println("jQuery done? " + js.executeScript("return jQuery.active === 0"));
+        System.out.println("jQuery active count " + js.executeScript("return jQuery.active"));
+
+        element.click();
