@@ -1,0 +1,65 @@
+import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public final class Angular {
+    private static final String ANGULAR_JS_PENDING_REQUESTS_SYNC_SCRIPT =
+            "return angular.element(document).injector().get('$http').pendingRequests.length === 0;";
+    private static final String ANGULAR_PENDING_REQUESTS_ASYNC_SCRIPT = "var callback = arguments[arguments.length - 1];" +
+            "window.getAngularTestability(document.querySelector('[ng-version]')).whenStable(callback);";
+
+    private static Logger log = Logger.getLogger(Angular.class);
+
+    private Angular() {
+    }
+
+    /**
+     * @param driver WebDriver
+     * @see <a href='http://skurlow.blogspot.com/2014/01/how-to-wait-for-angularjs-to-finish.html'>How to wait for
+     * AngularJS to finish processing using WebDriver?</a>
+     * <br/>
+     * @see <a href='https://github.com/angular/protractor/blob/master/lib/clientsidescripts.js'>Similar function used
+     * by protractor</a>
+     */
+    public static void waitForAngularJSRequests(WebDriver driver) {
+        log.debug("Started to wait for AngularJS requests to complete");
+        new WebDriverWait(driver, 30).ignoring(WebDriverException.class, ClassCastException.class)
+                .until(webDriver -> {
+                    boolean finalResult = false;
+                    boolean initialResult = (boolean) ((JavascriptExecutor) webDriver).executeScript(ANGULAR_JS_PENDING_REQUESTS_SYNC_SCRIPT);
+                    log.debug("Intermediate status of waiting for AngularJS: " + initialResult);
+                    if (initialResult) {
+                        finalResult = (boolean) ((JavascriptExecutor) webDriver).executeScript(ANGULAR_JS_PENDING_REQUESTS_SYNC_SCRIPT);
+                    }
+                    log.debug("Final status of waiting for AngularJS: " + finalResult);
+                    return finalResult;
+                });
+        log.debug("AngularJS wait completed");
+    }
+
+    /**
+     * Method to wait for Angular2+ testability
+     *
+     * @param driver WebDriver instance
+     */
+    public static void waitForAngularTestability(WebDriver driver) {
+        log.debug("Started to wait for Angular testability");
+        new WebDriverWait(driver, 45).ignoring(WebDriverException.class)
+                .until(webDriver -> {
+                    ((JavascriptExecutor) webDriver).executeAsyncScript(ANGULAR_PENDING_REQUESTS_ASYNC_SCRIPT);
+                    return true;
+                });
+        log.debug("Angular testability wait completed");
+    }
+
+    private static boolean isHomePageOpened(WebDriver driver) {
+        return driver.getCurrentUrl().matches("about:blank|data:,|^.*localhost.*$");
+    }
+
+    private static boolean isAngularAvailable(@NotNull WebDriver wd) {
+        return (boolean) ((JavascriptExecutor) wd).executeScript("return window.angular != undefined;");
+    }
+}
