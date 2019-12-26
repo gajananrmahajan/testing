@@ -1,0 +1,25 @@
+ public String getProcessId(String browserName) throws IOException {
+        int port = 0;
+        WebDriver driver;
+
+
+        if (browserName.equalsIgnoreCase("firefox")) {
+            GeckoDriverService service = GeckoDriverService.createDefaultService();
+            driver = new FirefoxDriver(service);
+            port = service.getUrl().getPort();
+        } else if (browserName.equalsIgnoreCase("chrome")) {
+            ChromeDriverService service = ChromeDriverService.createDefaultService();
+            driver = new ChromeDriver(service);
+            port = service.getUrl().getPort();
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("netstat -aon | find \"" + port + "\"").getInputStream()));
+        StringBuilder builder = new StringBuilder();
+        String line = null;
+        Set<String> set = new HashSet<String>();
+        while ((line = reader.readLine()) != null) {
+            if (line.contains(String.valueOf(port)) && line.contains("LISTEN")) {
+                set.add(line.split(" ")[1]);
+            }
+        }
+        return set.iterator().next();
+    }
