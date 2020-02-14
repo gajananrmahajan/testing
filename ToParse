@@ -1,0 +1,11 @@
+    "[INFO] Results:\n" +
+            "[INFO] \n" +
+            "[ERROR] Errors: \n" +
+            "[ERROR]   AttachRestTest>GenericRestBase.pre:102 » Business I/O error on GET request for...\n" +
+            "[ERROR]   CallbackActionRestTest>GenericRestBase.pre:102 » Business I/O error on GET req...\n" +
+            "[ERROR]   CountRestTest>GenericRestBase.pre:102 » Business I/O error on GET request for ..." +
+            "[INFO] \n" +
+            "[INFO] \n" +
+            "[ERROR] Tests run: 55, Failures: 0, Errors: 44, Skipped: 0\n" +
+            "[INFO] \n" +
+            "[INFO] ------------------------------------------------------------------------" 
