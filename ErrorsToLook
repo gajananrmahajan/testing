@@ -1,0 +1,4 @@
+java.lang.OutOfMemoryError: unable to create new native thread
+org.openqa.selenium.WebDriverException: unknown error: Failed to create a Chrome process.
+
+svn: E020024: Error resolving case of 
